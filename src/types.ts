@@ -53,3 +53,10 @@ export interface StockItem {
   unit: string;
   lastUpdated: string;
 }
+
+export interface UserAccount {
+  email: string;
+  password?: string;
+  fullName?: string;
+  location?: string;
+}

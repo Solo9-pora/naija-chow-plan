@@ -8,6 +8,12 @@ interface WeeklyPreviewProps {
 }
 
 export function WeeklyPreview({ plan, onDayClick }: WeeklyPreviewProps) {
+  const isPastDay = (dayIndex: number) => {
+    // Basic logic for demo: currentDay is usually index 1 based on App state
+    // In a real app we'd use actual dates
+    return false; // For now just assume they are all ready/upcoming
+  };
+
   return (
     <div className="flex gap-4 overflow-x-auto pb-6 -mx-4 px-4 no-scrollbar">
       {plan.map((day, index) => {
@@ -53,7 +59,7 @@ export function WeeklyPreview({ plan, onDayClick }: WeeklyPreviewProps) {
               <div className="flex items-center gap-1.5 mt-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${day.isCurrent ? 'bg-lime-500 animate-pulse' : 'bg-zinc-600'}`} />
                 <span className="text-[8px] font-bold text-zinc-500 uppercase tracking-widest">
-                  {day.isCurrent ? 'Plan Ready' : 'Past Plan'}
+                  {day.isCurrent ? 'Plan Active' : 'Upcoming'}
                 </span>
               </div>
             </div>

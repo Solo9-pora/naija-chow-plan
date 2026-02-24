@@ -1,11 +1,12 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, RefreshCw, ShoppingCart, Clock, AlertCircle, PackageCheck, Bell, User } from 'lucide-react';
+import { ChevronLeft, ShoppingCart, Clock, AlertCircle, PackageCheck, Bell, User, Lock, LogIn } from 'lucide-react';
 import { DayPlan, Meal, StockItem } from '../types';
 import { Button } from './ui';
 import { MealSlot } from './MealSlot';
 import { AddMealOverlay } from './AddMealOverlay';
 import { toast } from 'sonner';
+import { cn } from '../lib/utils';
 
 interface GeneratedWeeklyCalendarViewProps {
   plan: DayPlan[];
@@ -20,6 +21,7 @@ interface GeneratedWeeklyCalendarViewProps {
   stock: StockItem[];
   onAddCustomMeal: (meal: Meal) => void;
   onUpdateDayPlan: (dayIndex: number, newMeals: DayPlan['meals']) => void;
+  isGuest?: boolean;
 }
 
 const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = ({ 
@@ -34,7 +36,8 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
   allMeals,
   stock,
   onAddCustomMeal,
-  onUpdateDayPlan
+  onUpdateDayPlan,
+  isGuest = false
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(initialDayIndex);
@@ -43,6 +46,7 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
   const selectedDay = plan[selectedIndex] || plan[0];
 
   const missingItems = useMemo(() => {
+    if (isGuest) return []; // Hide missing items logic for guests to simplify
     const requiredIngredients = new Set<string>();
     plan.forEach(day => {
       Object.values(day.meals).flat().forEach(meal => {
@@ -56,7 +60,7 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
       if (!stockNames.has(ing)) missing.push(ing);
     });
     return missing;
-  }, [plan, stock]);
+  }, [plan, stock, isGuest]);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -130,14 +134,17 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
               aria-label="Notifications"
             >
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-lime-500 rounded-full border border-black animate-pulse" />
+              {!isGuest && <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-lime-500 rounded-full border border-black animate-pulse" />}
             </button>
             <button 
               onClick={onViewProfile} 
-              className="p-2 rounded-xl hover:bg-white/10 text-white transition-colors"
+              className={cn(
+                "p-2 rounded-xl hover:bg-white/10 text-white transition-colors",
+                isGuest && "text-lime-500"
+              )}
               aria-label="Profile"
             >
-              <User className="w-5 h-5" />
+              {isGuest ? <LogIn className="w-5 h-5" /> : <User className="w-5 h-5" />}
             </button>
           </div>
           <button onClick={onViewShopping} className="relative p-2.5 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors">
@@ -158,7 +165,7 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
           </div>
         </section>
 
-        {missingItems.length > 0 && (
+        {!isGuest && missingItems.length > 0 && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-3xl bg-zinc-900 border border-amber-500/30 flex items-start gap-4">
             <div className="p-2 bg-amber-500/20 rounded-xl"><AlertCircle className="w-5 h-5 text-amber-500" /></div>
             <div className="flex-1 space-y-2">
@@ -190,7 +197,8 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
         </AnimatePresence>
 
         <section className="mt-8">
-          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-lime-500 to-lime-600 text-black shadow-[0_20px_50px_rgba(132,204,22,0.2)]">
+          <div className="p-8 rounded-[2.5rem] bg-gradient-to-br from-lime-500 to-lime-600 text-black shadow-[0_20px_50px_rgba(132,204,22,0.2)] relative overflow-hidden group">
+            {isGuest && <div className="absolute top-0 right-0 p-4 opacity-20"><Lock className="w-8 h-8" /></div>}
             <div className="flex justify-between items-start mb-6">
               <div className="space-y-1">
                 <h3 className="text-2xl font-black italic uppercase leading-none tracking-tighter">Available Stock</h3>
@@ -198,7 +206,7 @@ const GeneratedWeeklyCalendarView: React.FC<GeneratedWeeklyCalendarViewProps> = 
               </div>
               <div className="p-3 bg-black/10 rounded-2xl backdrop-blur-sm"><PackageCheck className="w-6 h-6" /></div>
             </div>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-3 relative z-10">
               <Button onClick={onViewStock} className="w-full bg-black text-white hover:bg-zinc-900 border-none h-14 rounded-2xl font-black uppercase italic text-sm">Check Available Stock</Button>
               <Button onClick={onViewShopping} variant="outline" className="w-full bg-transparent border-black/20 text-black hover:bg-black/5 h-14 rounded-2xl font-black uppercase italic text-sm">Go to Market List</Button>
             </div>
