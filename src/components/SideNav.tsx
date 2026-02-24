@@ -6,25 +6,28 @@ import {
   Bell, 
   Settings, 
   Clock, 
-  LogOut
+  LogOut,
+  LogIn
 } from 'lucide-react';
+import { AppView } from '../App';
 
 interface SideNavProps {
   isOpen: boolean;
   onClose: () => void;
-  onNavigate: (view: any) => void;
+  onNavigate: (view: AppView) => void;
   onLogout: () => void;
+  isGuest?: boolean;
 }
 
-const menuItems = [
-  { icon: User, label: 'Profile', view: 'profile-creation' },
-  { icon: Heart, label: 'Favorite', view: 'favorites', disabled: true },
-  { icon: Bell, label: 'Notifications', view: 'notifications' },
-  { icon: Settings, label: 'Settings', view: 'settings', disabled: true },
-  { icon: Clock, label: 'Coming Soon', view: 'coming-soon', disabled: true },
-];
+export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose, onNavigate, onLogout, isGuest = false }) => {
+  const menuItems: { icon: any, label: string, view: AppView, disabled?: boolean }[] = [
+    { icon: isGuest ? LogIn : User, label: isGuest ? 'Sign Up' : 'Profile', view: isGuest ? 'signup' : 'profile-creation' },
+    { icon: Heart, label: 'Favorite', view: 'home', disabled: true }, // Map to home but disabled
+    { icon: Bell, label: 'Notifications', view: 'notifications' },
+    { icon: Settings, label: 'Settings', view: 'home', disabled: true },
+    { icon: Clock, label: 'Coming Soon', view: 'home', disabled: true },
+  ];
 
-export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose, onNavigate, onLogout }) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -63,7 +66,7 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose, onNavigate, o
                         : 'hover:bg-lime-500/10 active:scale-95 group'
                     }`}
                   >
-                    <div className={`p-2 rounded-xl bg-white/5 group-hover:bg-lime-500 transition-colors`}>
+                    <div className={`p-2 rounded-xl bg-white/5 ${item.disabled ? '' : 'group-hover:bg-lime-500'} transition-colors`}>
                       <item.icon className={`w-5 h-5 ${item.disabled ? 'text-zinc-500' : 'text-white group-hover:text-black'}`} />
                     </div>
                     <span className={`font-bold text-sm tracking-wide ${item.disabled ? 'text-zinc-500' : 'text-zinc-200'}`}>
@@ -87,7 +90,7 @@ export const SideNav: React.FC<SideNavProps> = ({ isOpen, onClose, onNavigate, o
                   <div className="p-2 rounded-xl bg-red-500/10 group-hover:bg-red-500 transition-colors">
                     <LogOut className="w-5 h-5 group-hover:text-white" />
                   </div>
-                  <span className="font-bold text-sm tracking-wide">Log Out</span>
+                  <span className="font-bold text-sm tracking-wide">{isGuest ? 'Exit Guest Mode' : 'Log Out'}</span>
                 </button>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShoppingCart, Menu, X, Bell, User } from 'lucide-react';
+import { ShoppingCart, Menu, X, Bell, User, LogIn } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 interface HeaderProps {
@@ -10,6 +10,7 @@ interface HeaderProps {
   toggleSidebar: () => void;
   hideNotifications?: boolean;
   hideProfile?: boolean;
+  isGuest?: boolean;
 }
 
 export function Header({ 
@@ -19,7 +20,8 @@ export function Header({
   isSidebarOpen, 
   toggleSidebar,
   hideNotifications = false,
-  hideProfile = false
+  hideProfile = false,
+  isGuest = false
 }: HeaderProps) {
   return (
     <header className="flex items-center justify-between px-0 py-4 bg-transparent sticky top-0 z-[80]">
@@ -56,16 +58,19 @@ export function Header({
             className="relative p-2.5 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
           >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-lime-500 rounded-full border border-black animate-pulse" />
+            {!isGuest && <span className="absolute top-2 right-2 w-2 h-2 bg-lime-500 rounded-full border border-black animate-pulse" />}
           </button>
         )}
         
         {!hideProfile && (
           <button 
             onClick={onProfileClick}
-            className="p-2.5 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors"
+            className={cn(
+              "p-2.5 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors",
+              isGuest && "border-lime-500/50 text-lime-500"
+            )}
           >
-            <User className="w-5 h-5" />
+            {isGuest ? <LogIn className="w-5 h-5" /> : <User className="w-5 h-5" />}
           </button>
         )}
 
@@ -74,9 +79,11 @@ export function Header({
           className="relative p-2.5 rounded-2xl bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-colors ml-1"
         >
           <ShoppingCart className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 w-4 h-4 bg-lime-500 rounded-full text-[8px] font-black text-black flex items-center justify-center border-2 border-black">
-            3
-          </span>
+          {!isGuest && (
+            <span className="absolute -top-1 -right-1 w-4 h-4 bg-lime-500 rounded-full text-[8px] font-black text-black flex items-center justify-center border-2 border-black">
+              3
+            </span>
+          )}
         </button>
       </div>
     </header>

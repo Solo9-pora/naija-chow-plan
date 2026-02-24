@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button, Input } from '../ui';
 import { User, MapPin, ArrowRight, Camera, ChevronLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ProfileCreationPageProps {
   onComplete: () => void;
@@ -9,9 +10,23 @@ interface ProfileCreationPageProps {
 }
 
 const ProfileCreationPage: React.FC<ProfileCreationPageProps> = ({ onComplete, onBack }) => {
+  const [fullName, setFullName] = useState('');
+  const [location, setLocation] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onComplete();
+    if (fullName.trim().length < 3) {
+      toast.error('Name too short', { description: 'Please enter your full name.' });
+      return;
+    }
+    
+    setIsLoading(true);
+    // Simulate save
+    setTimeout(() => {
+      setIsLoading(false);
+      onComplete();
+    }, 800);
   };
 
   return (
@@ -31,7 +46,6 @@ const ProfileCreationPage: React.FC<ProfileCreationPageProps> = ({ onComplete, o
           <p className="text-zinc-500 font-medium">Let's personalize your experience</p>
         </div>
 
-        {/* Profile Pic Placeholder */}
         <div className="flex justify-center py-4">
           <div className="relative">
             <div className="w-24 h-24 rounded-full bg-zinc-900 border-2 border-lime-500/50 flex items-center justify-center overflow-hidden">
@@ -41,7 +55,7 @@ const ProfileCreationPage: React.FC<ProfileCreationPageProps> = ({ onComplete, o
                 className="w-full h-full object-cover"
               />
             </div>
-            <button className="absolute bottom-0 right-0 w-8 h-8 bg-lime-500 rounded-full flex items-center justify-center text-black shadow-lg border-4 border-black">
+            <button className="absolute bottom-0 right-0 w-8 h-8 bg-lime-500 rounded-full flex items-center justify-center text-black shadow-lg border-4 border-black hover:scale-110 transition-transform">
               <Camera className="w-4 h-4" />
             </button>
           </div>
@@ -52,7 +66,14 @@ const ProfileCreationPage: React.FC<ProfileCreationPageProps> = ({ onComplete, o
             <label className="text-[10px] font-black uppercase tracking-widest text-lime-500 px-1">Full Name</label>
             <div className="relative">
               <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-              <Input type="text" placeholder="Solomon Adebayo" className="pl-12" required />
+              <Input 
+                type="text" 
+                placeholder="Solomon Adebayo" 
+                className="pl-12 bg-white/5 border-white/10" 
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required 
+              />
             </div>
           </div>
 
@@ -60,14 +81,25 @@ const ProfileCreationPage: React.FC<ProfileCreationPageProps> = ({ onComplete, o
             <label className="text-[10px] font-black uppercase tracking-widest text-lime-500 px-1">Location</label>
             <div className="relative">
               <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
-              <Input type="text" placeholder="Lagos, Nigeria" className="pl-12" required />
+              <Input 
+                type="text" 
+                placeholder="Lagos, Nigeria" 
+                className="pl-12 bg-white/5 border-white/10" 
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                required 
+              />
             </div>
             <p className="text-[10px] text-zinc-500 italic px-1 font-medium">Used to suggest local market prices</p>
           </div>
 
-          <Button type="submit" className="w-full mt-6 group h-14 rounded-3xl text-lg uppercase italic font-black">
-            Complete Profile
-            <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+          <Button 
+            disabled={isLoading}
+            type="submit" 
+            className="w-full mt-6 group h-14 rounded-3xl text-lg uppercase italic font-black bg-lime-500 text-black hover:bg-lime-400"
+          >
+            {isLoading ? 'Saving...' : 'Complete Profile'}
+            {!isLoading && <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />}
           </Button>
         </form>
       </div>
